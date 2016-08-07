@@ -1,5 +1,7 @@
 package com.android.ayush.audiorecorder;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -7,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
@@ -29,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     Button play,stop,record,save;
     private MediaRecorder audioRecorder;
     private String outputFile = null;
+    private Context context = this;
 
 
     @Override
@@ -60,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            File audioDirectory = new File("/sdcard/tmp");
+            File audioDirectory = new File("/sdcard/tm" +
+                    "p");
             audioDirectory.mkdirs();
             outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tmp/audioFile.3gp";
         }
@@ -134,15 +140,41 @@ public class MainActivity extends AppCompatActivity {
 
                 case R.id.saveButton :
 
-                    File outputFolder = new File(Environment.getExternalStorageDirectory() + "/AudioRecorded/audioFile.3gp");
-                    File inputFolder = new File(Environment.getExternalStorageDirectory() + "/tmp/audioFile.3gp");
+                    AlertDialog.Builder alert = new AlertDialog.Builder(context);
 
-                    try {
-                        copyFile(inputFolder,outputFolder);
-                        Toast.makeText(getApplicationContext(), "Audio Saved Successfully" , Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    alert.setTitle("File Name");
+                    alert.setMessage("Please enter audio file name");
+
+                    final EditText inputFileName = new EditText(context);
+                    alert.setView(inputFileName);
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String inputValue = inputFileName.getText().toString();
+                            File outputFolder = new File(Environment.getExternalStorageDirectory() + "/AudioRecorded/"+inputValue+".3gp");
+                            File inputFolder = new File(Environment.getExternalStorageDirectory() + "/tmp/audioFile.3gp");
+
+                            try {
+                                copyFile(inputFolder,outputFolder);
+                                Toast.makeText(getApplicationContext(), "Audio Saved Successfully" , Toast.LENGTH_LONG).show();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+                    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+
+                    alert.show();
+
+                    break;
             }
         }
     };
